@@ -13,12 +13,29 @@ public class GameManager : MonoBehaviour
     public bool isGameRunning;
     public Button restartButton;
     private int score = 0;
+    private SpawnRate spawnRate;
+    public GameObject titleScreen;
+
+    class SpawnRate
+    {
+        private float baseRate;
+        private int difficulty;
+
+        public SpawnRate(int diff)
+        {
+            baseRate = 1.0f;
+            difficulty = diff;
+        }
+
+        public float GetRate()
+        {
+            return baseRate / difficulty;
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
-        isGameRunning = true;
-        StartCoroutine(TargetSpawner());
-        UpdateScore(0);
+
     }
 
     // Update is called once per frame
@@ -26,11 +43,21 @@ public class GameManager : MonoBehaviour
     {
         
     }
+    public void StartGame(int difficulty)
+    {
+        spawnRate = new SpawnRate(difficulty);
+        Debug.Log("Spawn rate = " + spawnRate.GetRate());
+        titleScreen.gameObject.SetActive(false);
+        isGameRunning = true;
+        StartCoroutine(TargetSpawner());
+        UpdateScore(0);
+    }
+
     IEnumerator TargetSpawner()
     {
         while (isGameRunning)
         {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(spawnRate.GetRate());
             int targetIndex = Random.Range(0, targets.Count);
             Instantiate(targets[targetIndex]);
         }
